@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con IA</title>
+</head>
+<body>
+    <h1>Chat con IA</h1>
+    <div id="chat-box">
+        <!-- Aquí se mostrarán los mensajes -->
+    </div>
+    <input type="text" id="user-input">
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById("user-input").value;
+            var messageElement = document.createElement("p");
+            messageElement.textContent = "Tú: " + userInput;
+            document.getElementById("chat-box").appendChild(messageElement);
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                var aiResponseElement = document.createElement("p");
+                aiResponseElement.textContent = "IA: " + data.response;
+                document.getElementById("chat-box").appendChild(aiResponseElement);
+            });
+        }
+    </script>
+</body>
+</html>
