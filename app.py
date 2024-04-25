@@ -1,15 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 import random
+import difflib
 app = Flask(__name__)
 
-# Ruta para cargar la página principal
-@app.route('/')
-def index():
-    return render_template('./index.html')
-
-import difflib
-
-# Diccionario de intenciones y respuestas
 intenciones = {
     "¡Hola! ¿En qué puedo ayudarte?": ["Hola", "Holi", "Saludos", "Klk", "Jelow", "ola", "oli"],
     "Adios, un gusto haberte ayudado, si tienes alguna otra duda hazmela llegar": ["Adiós", "Hasta luego", "¡Hasta pronto!","Bye", "Ahi nos vidrios"],
@@ -29,42 +22,30 @@ intenciones = {
     "Puedes ver Five Nights At Freddys este Miercoles 25 de Octubre, solo en Cines...": ["¿Puedes recomendarme una película popular?","alguna pelicula que recomiendes", "una pelicula que te guste mucho?"],
     "Pues si no hay alguien cerca que te pueda proporcionar uno, una calceta seria una buena alternativa": ["¿que hago si no hay papel en el baño?", "que hago si estoy solo y no hay papel?", "no hay papel en el baño" ],
     "No puedo sentir emociones ya que al ser un ChatBot no cuento con ellas": ["¿Conoces los sentimientos?", "tienes sentimientos?"],
+}
 
-
-
-    }
-
-# Función para determinar la intención del usuario
 def get_response(texto):
     texto = texto.lower()
-    print("estamos aqui")
     mejor_coincidencia = None
     mejor_ratio = 0
 
-    # Buscar la mejor coincidencia en las intenciones
     for intencion, respuestas in intenciones.items():
-        print('respuestas')
         for respuesta in respuestas:
             ratio = difflib.SequenceMatcher(None, texto, respuesta.lower()).ratio()
             if ratio > mejor_ratio:
                 mejor_ratio = ratio
                 mejor_coincidencia = intencion
 
-    if mejor_ratio > 0.4:  # Umbral de ratio para la coincidencia
+    if mejor_ratio > 0.4:
         return mejor_coincidencia
     else:
         return "otra_pregunta"
 
-# Función para responder a la pregunta del usuario
 def responder_pregunta(texto):
     intencion = get_response(texto)
     respuestas = intenciones[intencion]
-    print('obtenemos respuesta')
     return random.choice(respuestas)
 
-# Ejemplo de uso
-
-# Ruta para procesar las solicitudes de los usuarios
 @app.route('/ask', methods=['POST'])
 def ask():
     user_message = request.json['message']
